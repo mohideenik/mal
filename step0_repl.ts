@@ -6,19 +6,19 @@ const rl = readline.createInterface({
 })
 
 function read(str: String): String {
-  return str;
+  return str
 }
 
 function evaluate(str: String): String {
-    return str;
+    return str
 }
 
 function prnt(str: String): String {
-    return str;
+    return str
 }
 
 function rep(str: String): String {
-    return str;
+    return str
 }
 
 // Main loop
