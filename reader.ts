@@ -1,10 +1,18 @@
-import { Mal, Atom, List } from "./types"
+import { Mal, Atom, List, Null, Vector, Unquote, Map } from "./types"
 
 export function read_str(str: string): Mal {
     let tokens = tokenizer(str)
-    // console.log("Obtained these tokens: ", tokens)
     let rdr = reader(tokens)
-    return read_form(rdr)
+
+    if (tokens.length == 0) 
+        return new Null()
+
+    try {
+        return read_form(rdr)
+    } catch (err) {
+        console.log("expected ')', got EOF\r\n")
+        return new Null()
+    }
 }
 
 function tokenizer(str: string): string[] {
@@ -30,12 +38,15 @@ function reader(tokens: string[]): Reader {
     return {
         next: (): string => {
             if (i >= tokens.length)
-                throw new Error("Calling reader when it is empty")
+                throw "expected ')', got EOF\r\n"
             else
                 return tokens[i++]
         },
         peek: (): string => {
-            return tokens[i]
+            if (i >= tokens.length)
+                throw "expected ')', got EOF\r\n"
+            else
+                return tokens[i]
         },
         hasNext: (): boolean => {
             return i < tokens.length - 1
@@ -46,10 +57,42 @@ function reader(tokens: string[]): Reader {
 function read_form(rdr: Reader): Mal {
     let token = rdr.peek()
 
-    if (token[0] == '(')
-        return read_list(rdr)
-    else
-        return read_atom(rdr)
+    switch(token[0]) {
+        case '(':
+            return read_list(rdr)
+        case '[':
+            return read_vector(rdr)
+        case '~':
+            return read_unquote(rdr)
+        case '{':
+            return read_map(rdr)
+        default:
+            return read_atom(rdr)
+    }        
+}
+
+function read_map(rdr: Reader): Mal {
+    rdr.next()
+    let key = read_form(rdr)
+    let value = read_form(rdr)
+    rdr.next()
+    return new Map(key, value)
+}
+
+function read_vector(rdr: Reader): Mal {
+    rdr.next()
+    var contents : Mal[] = []
+    while (rdr.peek()[0] != ']') {
+        contents.push(read_form(rdr))
+    }
+    rdr.next()
+    return new Vector(contents)
+}
+
+function read_unquote(rdr: Reader): Mal {
+    rdr.next()
+    var contents : Mal = read_form(rdr)
+    return new Unquote(contents)
 }
 
 function read_list(rdr: Reader): Mal {
@@ -58,7 +101,6 @@ function read_list(rdr: Reader): Mal {
     while (rdr.peek()[0] != ')') {
         contents.push(read_form(rdr))
     }
-    // console.log("Obtained list " + contents)
     rdr.next()
     return new List(contents)
 }

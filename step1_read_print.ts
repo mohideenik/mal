@@ -24,7 +24,8 @@ function prnt(ast: Mal): string {
 function rep(str: string): void {
     let ast: Mal = read(str)
     let x: string = prnt(ast)
-    console.log(x)
+    if (x != "")
+        console.log(x)
 }
 
 // Main loop
