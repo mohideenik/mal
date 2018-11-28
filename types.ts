@@ -4,7 +4,9 @@ export const enum Node {
     Null,
     Vector,
     Unquote,
-    Map
+    Quote,
+    Map,
+    Quasiquote
 }
 
 export abstract class Mal {
@@ -70,6 +72,32 @@ export class Unquote extends Mal {
 
     public toString(): string {
         return "(unquote " + this.contents.toString() + ")"
+    }
+}
+
+export class Quasiquote extends Mal {
+    contents: Mal
+
+    constructor(v: Mal) {
+        super(Node.Quasiquote)
+        this.contents = v
+    }
+
+    public toString(): string {
+        return "(quasiquote " + this.contents.toString() + ")"
+    }
+}
+
+export class Quote extends Mal {
+    contents: Mal
+
+    constructor(v: Mal) {
+        super(Node.Quote)
+        this.contents = v
+    }
+
+    public toString(): string {
+        return "(quote " + this.contents.toString() + ")"
     }
 }
 

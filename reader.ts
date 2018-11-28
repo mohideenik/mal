@@ -1,4 +1,4 @@
-import { Mal, Atom, List, Null, Vector, Unquote, Map } from "./types"
+import { Mal, Atom, List, Null, Vector, Unquote, Map, Quasiquote, Quote } from "./types"
 
 export function read_str(str: string): Mal {
     let tokens = tokenizer(str)
@@ -66,6 +66,10 @@ function read_form(rdr: Reader): Mal {
             return read_unquote(rdr)
         case '{':
             return read_map(rdr)
+        case '`':
+            return read_quasiquote(rdr)
+        case '\'':
+            return read_quote(rdr)
         default:
             return read_atom(rdr)
     }        
@@ -89,10 +93,22 @@ function read_vector(rdr: Reader): Mal {
     return new Vector(contents)
 }
 
+function read_quote(rdr: Reader): Mal {
+    rdr.next()
+    var contents : Mal = read_form(rdr)
+    return new Quote(contents)
+}
+
 function read_unquote(rdr: Reader): Mal {
     rdr.next()
     var contents : Mal = read_form(rdr)
     return new Unquote(contents)
+}
+
+function read_quasiquote(rdr: Reader): Mal {
+    rdr.next()
+    var contents : Mal = read_form(rdr)
+    return new Quasiquote(contents)
 }
 
 function read_list(rdr: Reader): Mal {
