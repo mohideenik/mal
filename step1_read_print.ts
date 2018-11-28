@@ -1,3 +1,7 @@
+import { read_str } from "./reader"
+import { pr_str } from "./printer"
+import { Mal } from "./types"
+
 const readline = require('readline')
 
 const rl = readline.createInterface({
@@ -5,25 +9,27 @@ const rl = readline.createInterface({
     output: process.stdout
 })
 
-function read(str: string): string {
-  return str
+function read(str: string): Mal {
+  return read_str(str)
 }
 
 function evaluate(str: string): string {
     return str
 }
 
-function prnt(str: string): string {
-    return str
+function prnt(ast: Mal): string {
+    return pr_str(ast)
 }
 
-function rep(str: string): string {
-    return str
+function rep(str: string): void {
+    let ast: Mal = read(str)
+    let x: string = prnt(ast)
+    console.log(x)
 }
 
 // Main loop
 process.stdout.write("user> ")
 rl.on('line', (input: string) => {
-    console.log(rep(input))
+    rep(input)
     process.stdout.write("user> ")
 });
