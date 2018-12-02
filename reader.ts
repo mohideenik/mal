@@ -1,18 +1,9 @@
-import { Mal, Atom, List, Null, Vector, Unquote, Map, Quasiquote, Quote } from "./types"
+import { Mal, Atom, List, Vector, Unquote, Map, Quasiquote, Quote, String, Number, Symbol } from "./types"
 
 export function read_str(str: string): Mal {
     let tokens = tokenizer(str)
     let rdr = reader(tokens)
-
-    if (tokens.length == 0) 
-        return new Null()
-
-    try {
-        return read_form(rdr)
-    } catch (err) {
-        console.log("expected ')', got EOF\r\n")
-        return new Null()
-    }
+    return read_form(rdr)
 }
 
 function tokenizer(str: string): string[] {
@@ -38,13 +29,13 @@ function reader(tokens: string[]): Reader {
     return {
         next: (): string => {
             if (i >= tokens.length)
-                throw "expected ')', got EOF\r\n"
+                throw "expected ')', got EOF"
             else
                 return tokens[i++]
         },
         peek: (): string => {
             if (i >= tokens.length)
-                throw "expected ')', got EOF\r\n"
+                throw "expected ')', got EOF"
             else
                 return tokens[i]
         },
@@ -123,7 +114,13 @@ function read_list(rdr: Reader): Mal {
 
 function read_atom(rdr: Reader): Atom {
     let contents = rdr.next()
-    return new Atom(contents)
+    if (contents[0] == "\"") {
+        return new String(contents)
+    } else if (!isNaN(+contents)) {
+        return new Number(+contents)
+    } else {
+        return new Symbol(contents)
+    }
 }
 
 interface Reader {

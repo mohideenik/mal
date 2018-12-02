@@ -6,10 +6,14 @@ export const enum Node {
     Unquote,
     Quote,
     Map,
-    Quasiquote
+    Quasiquote,
+    Number,
+    String,
+    Symbol, Function
 }
 
 export abstract class Mal {
+    public abstract contents: any
     type: Node
 
     constructor(n: Node) {
@@ -19,12 +23,57 @@ export abstract class Mal {
     public abstract toString(): string
 }
 
-export class Atom extends Mal {
+export class Function extends Mal {
+    contents: any
+
+    constructor(f: any) {
+        super(Node.Function)
+        this.contents = f
+    }
+
+    public toString(): string {
+        return this.contents
+    }
+}
+
+export abstract class Atom extends Mal {
+    constructor(t: Node) {
+        super(t)
+    }
+}
+
+export class Number extends Atom {
+    contents: number
+
+    constructor(x: number) {
+        super(Node.Number)
+        this.contents = x
+    }
+
+    public toString(): string {
+        return "" + this.contents
+    }
+}
+
+export class String extends Atom {
     contents: string
 
-    constructor(v: string) {
-        super(Node.Atom)
-        this.contents = v
+    constructor(x: string) {
+        super(Node.String)
+        this.contents = x
+    }
+
+    public toString(): string {
+        return this.contents
+    }
+}
+
+export class Symbol extends Atom {
+    contents: string
+
+    constructor(x: string) {
+        super(Node.Symbol)
+        this.contents = x
     }
 
     public toString(): string {
@@ -33,7 +82,7 @@ export class Atom extends Mal {
 }
 
 export class List extends Mal {
-    contents: Mal[]
+    public contents: Mal[]
 
     constructor(v: Mal[]) {
         super(Node.List)
@@ -48,7 +97,7 @@ export class List extends Mal {
 }
 
 export class Vector extends Mal {
-    contents: Mal[]
+    public contents: Mal[]
 
     constructor(v: Mal[]) {
         super(Node.Vector)
@@ -103,25 +152,15 @@ export class Quote extends Mal {
 
 export class Map extends Mal {
     key: Mal
-    value: Mal
+    contents: Mal
 
     constructor(k: Mal, v: Mal) {
         super(Node.Map)
         this.key = k
-        this.value = v
+        this.contents = v
     }
 
     public toString(): string {
-        return "{" + this.key.toString() + " " + this.value.toString() + "}"
-    }
-}
-
-export class Null extends Mal {
-    constructor() {
-        super(Node.Null)
-    }
-
-    public toString(): string {
-        return ""
+        return "{" + this.key.toString() + " " + this.contents.toString() + "}"
     }
 }
