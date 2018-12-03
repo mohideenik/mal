@@ -1,6 +1,7 @@
 import { read_str } from "./reader"
 import { pr_str } from "./printer"
 import { Mal, List, Symbol, Function, Number, Vector } from "./types"
+import { Env } from "./env";
 
 const readline = require('readline')
 const rl = readline.createInterface({
@@ -12,10 +13,11 @@ function read(str: string): Mal {
     return read_str(str)
 }
 
-function eval_ast(ast: Mal, repl_env: any): Mal {
+function eval_ast(ast: Mal, repl_env: Env): Mal {
     if (ast instanceof Symbol) {
-        if (repl_env[ast.contents])
-            return new Function(repl_env[ast.contents])
+        let result = repl_env.get(ast.contents)
+        if (result)
+            return new Symbol(result)
         else
             throw "'" + ast.contents + "' not found"
     } else if (ast instanceof List) {
@@ -27,10 +29,20 @@ function eval_ast(ast: Mal, repl_env: any): Mal {
     }
 }
 
-function evaluate(ast: Mal, repl_env: any): Mal {
+function evaluate(ast: Mal, repl_env: Env): Mal {
     if (ast instanceof List) {
         if (ast.contents.length == 0) {
             return ast
+        } else if (ast.contents[0] instanceof Symbol && ast.contents[0].contents == "def!") {
+            if (!(ast.contents[1] instanceof Symbol)) 
+                throw "Second parameter of define needs to be a valid symbol"
+            if (!(ast.contents[2])) 
+                throw "Third parameter is needed for the value"
+
+            let result = eval_ast(ast.contents[2], repl_env)
+            repl_env.set(ast.contents[1].contents, result.contents)
+
+            return result
         } else {
             let evaluated = eval_ast(ast, repl_env)
             let fn = evaluated.contents.shift().contents
@@ -47,14 +59,7 @@ function prnt(ast: Mal): string {
     return pr_str(ast)
 }
 
-function rep(str: string): void {
-    let repl_env = {
-        "+": (x: number, y: number) => x + y,
-        "-": (x: number, y: number) => x - y,
-        "*": (x: number, y: number) => x * y,
-        "/": (x: number, y: number) => x / y
-    }
-
+function rep(str: string, repl_env: Env): void {
     try {
         let ast: Mal = read(str)
         let processed: Mal = evaluate(ast, repl_env)
@@ -67,10 +72,16 @@ function rep(str: string): void {
     }
 }
 
-// Main loop
+let repl_env = new Env(null)
+repl_env.set("+", (x: number, y: number) => x + y)
+repl_env.set("-", (x: number, y: number) => x - y)
+repl_env.set("*", (x: number, y: number) => x * y)
+repl_env.set("/", (x: number, y: number) => x / y)
+
+    // Main loop
 process.stdout.write("user> ")
 rl.on('line', (input: string) => {
     if (input.trim() != "")
-        rep(input)
+        rep(input, repl_env)
     process.stdout.write("user> ")
 });

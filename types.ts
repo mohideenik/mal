@@ -1,7 +1,6 @@
 export const enum Node {
     List,
     Atom,
-    Null,
     Vector,
     Unquote,
     Quote,
@@ -9,7 +8,8 @@ export const enum Node {
     Quasiquote,
     Number,
     String,
-    Symbol, Function
+    Symbol, 
+    Function
 }
 
 export abstract class Mal {
