@@ -39,9 +39,8 @@ function evaluate(ast: Mal, repl_env: Env): Mal {
             if (!(ast.contents[2])) 
                 throw "Third parameter is needed for the value"
 
-            let result = eval_ast(ast.contents[2], repl_env)
+            let result = evaluate(ast.contents[2], repl_env)
             repl_env.set(ast.contents[1].contents, result.contents)
-
             return result
         } else {
             let evaluated = eval_ast(ast, repl_env)
@@ -78,7 +77,7 @@ repl_env.set("-", (x: number, y: number) => x - y)
 repl_env.set("*", (x: number, y: number) => x * y)
 repl_env.set("/", (x: number, y: number) => x / y)
 
-    // Main loop
+// Main loop
 process.stdout.write("user> ")
 rl.on('line', (input: string) => {
     if (input.trim() != "")
