@@ -1,6 +1,6 @@
 import { read_str } from "./reader"
 import { pr_str } from "./printer"
-import { Mal, List, Symbol, Function, Number, Vector } from "./types"
+import { Mal, List, Symbol, Function, Number, Vector, Map } from "./types"
 import { Env } from "./env";
 
 const readline = require('readline')
@@ -68,6 +68,9 @@ function evaluate(ast: Mal, repl_env: Env): Mal {
             let result = fn.apply(null, args.map(x => x.contents))
             return read_str(result)
         }
+    } else if (ast instanceof Map) {
+        let result = evaluate(ast.contents, repl_env)
+        return new Map(ast.key, result)
     } else {
         return eval_ast(ast, repl_env)
     }
