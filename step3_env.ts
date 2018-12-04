@@ -17,7 +17,7 @@ function eval_ast(ast: Mal, repl_env: Env): Mal {
     if (ast instanceof Symbol) {
         let result = repl_env.get(ast.contents)
         if (result)
-            return new Symbol(result)
+            return result
         else
             throw "'" + ast.contents + "' not found"
     } else if (ast instanceof List) {
@@ -40,7 +40,7 @@ function evaluate(ast: Mal, repl_env: Env): Mal {
                 throw "Third parameter is needed for the value"
 
             let result = evaluate(ast.contents[2], repl_env)
-            repl_env.set(ast.contents[1].contents, result.contents)
+            repl_env.set(ast.contents[1].contents, result)
             return result
         } else if (ast.contents[0] instanceof Symbol && ast.contents[0].contents == "let*") {
             if (ast.contents.length != 3)
@@ -57,7 +57,7 @@ function evaluate(ast: Mal, repl_env: Env): Mal {
                     throw "Invalid symbol given in let* list"
                 
                 let result = evaluate(dec_lst[i+1], new_env)
-                new_env.set(dec_lst[i].contents, result.contents)
+                new_env.set(dec_lst[i].contents, result)
             }
             
             return evaluate(ast.contents[2], new_env)
@@ -95,10 +95,10 @@ function rep(str: string, repl_env: Env): void {
 
 // Initialize environment
 let repl_env = new Env(null)
-repl_env.set("+", (x: number, y: number) => x + y)
-repl_env.set("-", (x: number, y: number) => x - y)
-repl_env.set("*", (x: number, y: number) => x * y)
-repl_env.set("/", (x: number, y: number) => x / y)
+repl_env.set("+", new Function((x: number, y: number) => x + y))
+repl_env.set("-", new Function((x: number, y: number) => x - y))
+repl_env.set("*", new Function((x: number, y: number) => x * y))
+repl_env.set("/", new Function((x: number, y: number) => x / y))
 
 // Main loop
 process.stdout.write("user> ")

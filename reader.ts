@@ -1,4 +1,4 @@
-import { Mal, Atom, List, Vector, Unquote, Map, Quasiquote, Quote, String, Number, Symbol } from "./types"
+import { Mal, Atom, List, Vector, Unquote, Map, Quasiquote, Quote, String, Number, Symbol, True, False, Nil } from "./types"
 
 export function read_str(str: string): Mal {
     let tokens = tokenizer(str)
@@ -116,6 +116,12 @@ function read_atom(rdr: Reader): Atom {
     let contents = rdr.next()
     if (contents[0] == "\"") {
         return new String(contents)
+    } else if (contents == "true") {
+        return new True()
+    } else if (contents == "false") {
+        return new False()
+    } else if (contents == "nil") {
+        return new Nil()
     } else if (!isNaN(+contents)) {
         return new Number(+contents)
     } else {

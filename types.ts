@@ -9,7 +9,10 @@ export const enum Node {
     Number,
     String,
     Symbol, 
-    Function
+    Function,
+    True,
+    False,
+    Nil
 }
 
 export abstract class Mal {
@@ -39,6 +42,42 @@ export class Function extends Mal {
 export abstract class Atom extends Mal {
     constructor(t: Node) {
         super(t)
+    }
+}
+
+export class Nil extends Atom {
+    contents: any
+
+    constructor() {
+        super(Node.Nil)
+    }
+
+    public toString(): string {
+        return "nil"
+    }
+}
+
+export class False extends Atom {
+    contents: any
+
+    constructor() {
+        super(Node.False)
+    }
+
+    public toString(): string {
+        return "false"
+    }
+}
+
+export class True extends Atom {
+    contents: any
+
+    constructor() {
+        super(Node.True)
+    }
+
+    public toString(): string {
+        return "true"
     }
 }
 
