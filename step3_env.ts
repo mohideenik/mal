@@ -42,6 +42,25 @@ function evaluate(ast: Mal, repl_env: Env): Mal {
             let result = evaluate(ast.contents[2], repl_env)
             repl_env.set(ast.contents[1].contents, result.contents)
             return result
+        } else if (ast.contents[0] instanceof Symbol && ast.contents[0].contents == "let*") {
+            if (ast.contents.length != 3)
+                throw "Invalid number of arguments for let*"
+            if (!(ast.contents[1] instanceof List || ast.contents[1] instanceof Vector))
+                throw "Invalid first parameter to let*"
+            else if (ast.contents[1].contents.length % 2 == 1)
+                throw "Invalid number of args in first parameter"
+            
+            let new_env = new Env(repl_env)
+            let dec_lst: Mal[] = ast.contents[1].contents
+            for (var i = 0; i < ast.contents[1].contents.length; i += 2) {
+                if (!(dec_lst[i] instanceof Symbol))
+                    throw "Invalid symbol given in let* list"
+                
+                let result = evaluate(dec_lst[i+1], new_env)
+                new_env.set(dec_lst[i].contents, result.contents)
+            }
+            
+            return evaluate(ast.contents[2], new_env)
         } else {
             let evaluated = eval_ast(ast, repl_env)
             let fn = evaluated.contents.shift().contents
@@ -71,6 +90,7 @@ function rep(str: string, repl_env: Env): void {
     }
 }
 
+// Initialize environment
 let repl_env = new Env(null)
 repl_env.set("+", (x: number, y: number) => x + y)
 repl_env.set("-", (x: number, y: number) => x - y)
