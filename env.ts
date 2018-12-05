@@ -1,10 +1,15 @@
+import { Mal } from "./types"
+
 export class Env {
     private outer: Env | null
     private data: {[key: string] : any}
 
-    constructor(outer: Env | null) {
+    constructor(outer: Env | null, binds: string[], exprs: Mal[]) {
         this.outer = outer
         this.data = {}
+
+        for (var i = 0; i < binds.length; i++)
+            this.set(binds[i], exprs[i])
     }
 
     public set(key: string, value: any) {

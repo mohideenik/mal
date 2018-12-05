@@ -35,7 +35,7 @@ export class Function extends Mal {
     }
 
     public toString(): string {
-        return this.contents
+        return "#<function>"
     }
 }
 
