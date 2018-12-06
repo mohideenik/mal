@@ -1,6 +1,6 @@
 import { read_str } from "./reader"
 import { pr_str } from "./printer"
-import { Mal, List, Symbol, Function, Number, Vector, Map, Nil, False } from "./types"
+import { Mal, List, Symbol, Function, Vector, Map, Nil, False } from "./types"
 import { Env } from "./env";
 import { ns } from "./core"
 

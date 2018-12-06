@@ -1,5 +1,4 @@
 import { Mal, Atom, List, Vector, Unquote, Map, Quasiquote, Quote, String, Number, Symbol, True, False, Nil } from "./types"
-import { ReadStream } from "fs";
 
 export function read_str(str: string): Mal {
     let tokens = tokenizer(str)

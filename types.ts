@@ -1,4 +1,5 @@
 import { setupMaster } from "cluster";
+import { Env } from "./env";
 
 export const enum Node {
     List,
@@ -38,6 +39,25 @@ export class Function extends Mal {
 
     public toString(print_readably: boolean): string {
         return "#<function>"
+    }
+}
+
+export class TCOFunction extends Mal {
+    contents: Function
+    ast: Mal
+    params: string[]
+    env: Env
+
+    constructor(f: Function, ast: Mal, params: string[], env: Env) {
+        super(Node.Function)
+        this.contents = f
+        this.ast = ast
+        this.params = params
+        this.env = env
+    }
+
+    public toString(print_readably: boolean): string {
+        return "#<tco_function>"
     }
 }
 
