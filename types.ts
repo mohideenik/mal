@@ -1,3 +1,5 @@
+import { setupMaster } from "cluster";
+
 export const enum Node {
     List,
     Atom,
@@ -23,7 +25,7 @@ export abstract class Mal {
         this.type = n
     }
 
-    public abstract toString(): string
+    public abstract toString(print_readably: boolean): string
 }
 
 export class Function extends Mal {
@@ -34,54 +36,64 @@ export class Function extends Mal {
         this.contents = f
     }
 
-    public toString(): string {
+    public toString(print_readably: boolean): string {
         return "#<function>"
     }
 }
 
-export abstract class Atom extends Mal {
-    constructor(t: Node) {
-        super(t)
+export class Atom extends Mal {
+    contents: string
+
+    constructor(x: string) {
+        super(Node.Atom)
+        this.contents = x
+    }
+
+    public toString(print_readably: boolean): string {
+        return this.contents
     }
 }
 
-export class Nil extends Atom {
+export class Nil extends Mal {
     contents: any
 
     constructor() {
         super(Node.Nil)
+        this.contents = "nil"
     }
 
-    public toString(): string {
+    public toString(print_readably: boolean): string {
         return "nil"
     }
 }
 
-export class False extends Atom {
+export class False extends Mal {
     contents: any
 
     constructor() {
         super(Node.False)
+        this.contents = "false"
     }
 
-    public toString(): string {
+    public toString(print_readably: boolean): string {
         return "false"
     }
 }
 
-export class True extends Atom {
+export class True extends Mal {
     contents: any
 
     constructor() {
         super(Node.True)
+        this.contents = "true"
     }
 
-    public toString(): string {
+    public toString(print_readably: boolean): string {
         return "true"
     }
 }
 
-export class Number extends Atom {
+export class Number extends Mal {
     contents: number
 
     constructor(x: number) {
@@ -89,12 +101,12 @@ export class Number extends Atom {
         this.contents = x
     }
 
-    public toString(): string {
+    public toString(print_readably: boolean): string {
         return "" + this.contents
     }
 }
 
-export class String extends Atom {
+export class String extends Mal {
     contents: string
 
     constructor(x: string) {
@@ -102,12 +114,15 @@ export class String extends Atom {
         this.contents = x
     }
 
-    public toString(): string {
-        return this.contents
+    public toString(print_readably: boolean): string {
+        if (print_readably)
+            return JSON.stringify(this.contents)
+        else
+            return this.contents
     }
 }
 
-export class Symbol extends Atom {
+export class Symbol extends Mal {
     contents: string
 
     constructor(x: string) {
@@ -115,7 +130,7 @@ export class Symbol extends Atom {
         this.contents = x
     }
 
-    public toString(): string {
+    public toString(print_readably: boolean): string {
         return this.contents
     }
 }
@@ -128,9 +143,9 @@ export class List extends Mal {
         this.contents = v
     }
 
-    public toString(): string {
+    public toString(print_readably: boolean): string {
         return "(" + this.contents
-            .map(x => x.toString())
+            .map(x => x.toString(print_readably))
             .join(" ") + ")"
     }
 }
@@ -143,9 +158,9 @@ export class Vector extends Mal {
         this.contents = v
     }
 
-    public toString(): string {
+    public toString(print_readably: boolean): string {
         return "[" + this.contents
-            .map(x => x.toString())
+            .map(x => x.toString(print_readably))
             .join(" ") + "]"
     }
 }
@@ -158,8 +173,8 @@ export class Unquote extends Mal {
         this.contents = v
     }
 
-    public toString(): string {
-        return "(unquote " + this.contents.toString() + ")"
+    public toString(print_readably: boolean): string {
+        return "(unquote " + this.contents.toString(print_readably) + ")"
     }
 }
 
@@ -171,8 +186,8 @@ export class Quasiquote extends Mal {
         this.contents = v
     }
 
-    public toString(): string {
-        return "(quasiquote " + this.contents.toString() + ")"
+    public toString(print_readably: boolean): string {
+        return "(quasiquote " + this.contents.toString(print_readably) + ")"
     }
 }
 
@@ -184,8 +199,8 @@ export class Quote extends Mal {
         this.contents = v
     }
 
-    public toString(): string {
-        return "(quote " + this.contents.toString() + ")"
+    public toString(print_readably: boolean): string {
+        return "(quote " + this.contents.toString(print_readably) + ")"
     }
 }
 
@@ -199,7 +214,7 @@ export class Map extends Mal {
         this.contents = v
     }
 
-    public toString(): string {
-        return "{" + this.key.toString() + " " + this.contents.toString() + "}"
+    public toString(print_readably: boolean): string {
+        return "{" + this.key.toString(print_readably) + " " + this.contents.toString(print_readably) + "}"
     }
 }

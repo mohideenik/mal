@@ -1,4 +1,5 @@
 import { Mal, Atom, List, Vector, Unquote, Map, Quasiquote, Quote, String, Number, Symbol, True, False, Nil } from "./types"
+import { ReadStream } from "fs";
 
 export function read_str(str: string): Mal {
     let tokens = tokenizer(str)
@@ -61,8 +62,10 @@ function read_form(rdr: Reader): Mal {
             return read_quasiquote(rdr)
         case '\'':
             return read_quote(rdr)
-        default:
+        case ':':
             return read_atom(rdr)
+        default:
+            return read_token(rdr)
     }        
 }
 
@@ -112,10 +115,15 @@ function read_list(rdr: Reader): Mal {
     return new List(contents)
 }
 
-function read_atom(rdr: Reader): Atom {
+function read_atom(rdr: Reader): Mal {
+    let contents = rdr.next()
+    return new Atom(contents)
+}
+
+function read_token(rdr: Reader): Mal {
     let contents = rdr.next()
     if (contents[0] == "\"") {
-        return new String(contents)
+        return new String(JSON.parse(contents))
     } else if (contents == "true") {
         return new True()
     } else if (contents == "false") {

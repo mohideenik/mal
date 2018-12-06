@@ -2,6 +2,7 @@ import { read_str } from "./reader"
 import { pr_str } from "./printer"
 import { Mal, List, Symbol, Function, Number, Vector, Map, Nil, False } from "./types"
 import { Env } from "./env";
+import { ns } from "./core"
 
 const readline = require('readline')
 const rl = readline.createInterface({
@@ -89,8 +90,7 @@ function evaluate(ast: Mal, repl_env: Env): Mal {
             let evaluated = eval_ast(ast, repl_env)
             let fn = evaluated.contents.shift().contents
             let args = evaluated.contents
-            let result = fn.apply(null, args)
-            return read_str(result)
+            return fn.apply(null, args)
         }
     } else if (ast instanceof Map) {
         let result = evaluate(ast.contents, repl_env)
@@ -100,18 +100,11 @@ function evaluate(ast: Mal, repl_env: Env): Mal {
     }
 }
 
-function prnt(ast: Mal): string {
-    return pr_str(ast)
-}
-
 function rep(str: string, repl_env: Env): void {
     try {
         let ast: Mal = read(str)
         let processed: Mal = evaluate(ast, repl_env)
-
-        let x: string = prnt(processed)
-        if (x != "")
-            console.log(x)
+        console.log(pr_str(processed, true))
     } catch (error) {
         console.log(error)
     }
@@ -119,10 +112,10 @@ function rep(str: string, repl_env: Env): void {
 
 // Initialize environment
 let repl_env = new Env(null, [], [])
-repl_env.set("+", new Function((x: Mal, y: Mal) => x.contents + y.contents))
-repl_env.set("-", new Function((x: Mal, y: Mal) => x.contents - y.contents))
-repl_env.set("*", new Function((x: Mal, y: Mal) => x.contents * y.contents))
-repl_env.set("/", new Function((x: Mal, y: Mal) => x.contents / y.contents))
+for (var symbol in ns) {
+    repl_env.set(symbol, new Function(ns[symbol]))
+}
+rep("(def! not (fn* (a) (if a false true)))", repl_env)
 
 // Main loop
 process.stdout.write("user> ")

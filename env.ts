@@ -1,4 +1,4 @@
-import { Mal } from "./types"
+import { Mal, List } from "./types"
 
 export class Env {
     private outer: Env | null
@@ -8,8 +8,13 @@ export class Env {
         this.outer = outer
         this.data = {}
 
-        for (var i = 0; i < binds.length; i++)
+        for (var i = 0; i < binds.length; i++) {
+            if (binds[i] == "&") {
+                this.set(binds[i+1], new List(exprs.slice(i)))
+                break
+            }
             this.set(binds[i], exprs[i])
+        }
     }
 
     public set(key: string, value: any) {
