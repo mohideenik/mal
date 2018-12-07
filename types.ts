@@ -14,6 +14,8 @@ export const enum Node {
     Function,
     True,
     False,
+    Colon,
+    Null,
     Nil
 }
 
@@ -60,16 +62,29 @@ export class TCOFunction extends Mal {
     }
 }
 
-export class Atom extends Mal {
+export class Colon extends Mal {
     contents: string
 
     constructor(x: string) {
-        super(Node.Atom)
+        super(Node.Colon)
         this.contents = x
     }
 
     public toString(print_readably: boolean): string {
         return this.contents
+    }
+}
+
+export class Atom extends Mal {
+    contents: Mal
+
+    constructor(x: Mal) {
+        super(Node.Atom)
+        this.contents = x
+    }
+
+    public toString(print_readably: boolean): string {
+        return "(atom " + this.contents.toString(print_readably) + ")"
     }
 }
 
@@ -83,6 +98,19 @@ export class Nil extends Mal {
 
     public toString(print_readably: boolean): string {
         return "nil"
+    }
+}
+
+export class Null extends Mal {
+    contents: any
+
+    constructor() {
+        super(Node.Null)
+        this.contents = "null"
+    }
+
+    public toString(print_readably: boolean): string {
+        return "null"
     }
 }
 

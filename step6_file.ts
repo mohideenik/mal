@@ -1,6 +1,6 @@
 import { read_str } from "./reader"
 import { pr_str } from "./printer"
-import { Mal, List, Symbol, Function, Vector, Map, Nil, False, TCOFunction } from "./types"
+import { Mal, List, Symbol, Null, Function, Vector, Map, Nil, False, TCOFunction, String } from "./types"
 import { Env } from "./env";
 import { ns } from "./core"
 
@@ -115,7 +115,8 @@ function rep(str: string, repl_env: Env): void {
     try {
         let ast: Mal = read(str)
         let processed: Mal = evaluate(ast, repl_env)
-        console.log(pr_str(processed, true))
+        if (!(ast instanceof Null))
+            console.log(pr_str(processed, true))
     } catch (error) {
         console.log(error)
     }
@@ -127,10 +128,13 @@ for (var symbol in ns) {
     repl_env.set(symbol, new Function(ns[symbol]))
 }
 repl_env.set("eval", new Function((ast: Mal) => evaluate(ast, repl_env)))
+repl_env.set("*ARGV*", new List(
+    process.argv.slice(2).map(x => new String(x))
+))
 
 // Load predefined functions in mal
 rep("(def! not (fn* (a) (if a false true)))", repl_env)
-rep('(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) ")")))))', repl_env)
+rep('(def! load-file (fn* (f) (eval (read-string (str "(do " (remove-comments (slurp f)) ")")))))', repl_env)
 
 // Main loop
 process.stdout.write("user> ")

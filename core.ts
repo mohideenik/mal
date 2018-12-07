@@ -1,5 +1,4 @@
-import { Mal, Number, Nil, List, True, False, Vector, String } from "./types"
-import { Env } from "./env"
+import { Mal, Number, Nil, List, True, False, Vector, String, Atom, TCOFunction } from "./types"
 import { read_str } from "./reader";
 
 const fs = require('fs');
@@ -87,6 +86,37 @@ export const ns : {[key: string] : any} = {
         let filename = fn.contents
         let contents = fs.readFileSync(filename, 'utf8')
         return new String(contents)
+    },
+    "atom": (ast: Mal) => {
+        return new Atom(ast)
+    },
+    "atom?": (ast: Mal) => {
+        if (ast instanceof Atom)
+            return new True()
+        else
+            return new False()
+    },
+    "deref": (ast: Mal) => {
+        return ast.contents
+    },
+    "reset!": (atom: Mal, val: Mal) => {
+        atom.contents = val
+        return val
+    },
+    "swap!": (atom: Mal, fn: Mal, ...args: Mal[]) => {
+        var fun;
+        if (fn instanceof TCOFunction)
+            fun = fn.contents.contents
+        else
+            fun = fn.contents
+        
+        let new_args = [atom.contents].concat(args)
+        atom.contents = fun.apply(null, new_args)
+        return atom.contents
+    },
+    "remove-comments": (str: Mal) => {
+        str.contents = str.contents.replace(/;;.*\n?/g, "")
+        return str
     }
 }
 
