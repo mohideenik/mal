@@ -1,4 +1,3 @@
-import { setupMaster } from "cluster";
 import { Env } from "./env";
 
 export const enum Node {

@@ -1,5 +1,8 @@
 import { Mal, Number, Nil, List, True, False, Vector, String } from "./types"
-import { pr_str } from "./printer"
+import { Env } from "./env"
+import { read_str } from "./reader";
+
+const fs = require('fs');
 
 export const ns : {[key: string] : any} = {
     "+": (x: Mal, y: Mal) => new Number(x.contents + y.contents),
@@ -77,6 +80,14 @@ export const ns : {[key: string] : any} = {
         if (x.contents >= y.contents) return new True()
         return new False()
     },
+    "read-string": (str: Mal) => {
+        return read_str(str.contents)
+    },
+    "slurp": (fn: Mal) => {
+        let filename = fn.contents
+        let contents = fs.readFileSync(filename, 'utf8')
+        return new String(contents)
+    }
 }
 
 function equal (x: Mal, y: Mal): Mal {

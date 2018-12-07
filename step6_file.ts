@@ -126,9 +126,11 @@ let repl_env = new Env(null, [], [])
 for (var symbol in ns) {
     repl_env.set(symbol, new Function(ns[symbol]))
 }
+repl_env.set("eval", new Function((ast: Mal) => evaluate(ast, repl_env)))
 
 // Load predefined functions in mal
 rep("(def! not (fn* (a) (if a false true)))", repl_env)
+rep('(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) ")")))))', repl_env)
 
 // Main loop
 process.stdout.write("user> ")
