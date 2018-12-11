@@ -212,45 +212,6 @@ export class Vector extends Mal {
     }
 }
 
-export class Unquote extends Mal {
-    contents: Mal
-
-    constructor(v: Mal) {
-        super(Node.Unquote)
-        this.contents = v
-    }
-
-    public toString(print_readably: boolean): string {
-        return "(unquote " + this.contents.toString(print_readably) + ")"
-    }
-}
-
-export class Quasiquote extends Mal {
-    contents: Mal
-
-    constructor(v: Mal) {
-        super(Node.Quasiquote)
-        this.contents = v
-    }
-
-    public toString(print_readably: boolean): string {
-        return "(quasiquote " + this.contents.toString(print_readably) + ")"
-    }
-}
-
-export class Quote extends Mal {
-    contents: Mal
-
-    constructor(v: Mal) {
-        super(Node.Quote)
-        this.contents = v
-    }
-
-    public toString(print_readably: boolean): string {
-        return "(quote " + this.contents.toString(print_readably) + ")"
-    }
-}
-
 export class Map extends Mal {
     key: Mal
     contents: Mal

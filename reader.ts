@@ -1,4 +1,4 @@
-import { Mal, Colon, Null, List, Vector, Unquote, Map, Quasiquote, Quote, String, Number, Symbol, True, False, Nil } from "./types"
+import { Mal, Colon, Null, List, Vector, Map, String, Number, Symbol, True, False, Nil } from "./types"
 
 export function read_str(str: string): Mal {
     let tokens = tokenizer(str)
@@ -102,19 +102,22 @@ function read_vector(rdr: Reader): Mal {
 function read_quote(rdr: Reader): Mal {
     rdr.next()
     var contents : Mal = read_form(rdr)
-    return new Quote(contents)
+    return new List([new Symbol("quote"), contents])
 }
 
 function read_unquote(rdr: Reader): Mal {
+    let sym = 
+        rdr.peek() == "~@" ? 
+        new Symbol("splice-unquote") : new Symbol("unquote")
     rdr.next()
     var contents : Mal = read_form(rdr)
-    return new Unquote(contents)
+    return new List([sym, contents])
 }
 
 function read_quasiquote(rdr: Reader): Mal {
     rdr.next()
     var contents : Mal = read_form(rdr)
-    return new Quasiquote(contents)
+    return new List([new Symbol("quasiquote"), contents])
 }
 
 function read_list(rdr: Reader): Mal {

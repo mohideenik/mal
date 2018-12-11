@@ -35,6 +35,12 @@ function evaluate(ast: Mal, repl_env: Env): Mal {
         if (ast instanceof List) {
             if (ast.contents.length == 0) {
                 return ast
+            } else if (ast.contents[0] instanceof Symbol && ast.contents[0].contents == "quote") {
+                if (ast.contents[1] instanceof Vector)
+                    return new List(ast.contents[1].contents)
+                return ast.contents[1]
+            } else if (ast.contents[0] instanceof Symbol && ast.contents[0].contents == "quasiquote") {
+                ast = quasiquote(ast.contents[1])
             } else if (ast.contents[0] instanceof Symbol && ast.contents[0].contents == "def!") {
                 if (!(ast.contents[1] instanceof Symbol)) 
                     throw "Second parameter of define needs to be a valid symbol"
@@ -109,6 +115,33 @@ function evaluate(ast: Mal, repl_env: Env): Mal {
         }
     }
 
+}
+
+function is_pair(str: Mal): boolean {
+    return (str instanceof List || str instanceof Vector) && str.contents.length > 0
+}
+
+function quasiquote(ast: Mal): Mal {
+    if (!is_pair(ast))
+        return new List([
+            new Symbol("quote"),
+            ast
+        ])
+    else if (ast.contents[0] instanceof Symbol && ast.contents[0].contents == "unquote") 
+        return ast.contents[1]
+    else if (is_pair(ast.contents[0]) && ast.contents[0].contents[0] instanceof Symbol &&
+        ast.contents[0].contents[0].contents == "splice-unquote")
+        return new List([
+            new Symbol("concat"),
+            ast.contents[0].contents[1],
+            quasiquote(new List(ast.contents.slice(1)))
+        ])
+    else
+        return new List([
+            new Symbol("cons"),
+            quasiquote(ast.contents[0]),
+            quasiquote(new List(ast.contents.slice(1)))
+        ])
 }
 
 function rep(str: string, repl_env: Env): void {

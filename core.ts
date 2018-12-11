@@ -117,6 +117,16 @@ export const ns : {[key: string] : any} = {
     "remove-comments": (str: Mal) => {
         str.contents = str.contents.replace(/;;.*\n?/g, "")
         return str
+    },
+    "cons": (head: Mal, tail: Mal) => {
+        return new List(
+            [head].concat(tail.contents)
+        )
+    },
+    "concat": (...lists: Mal[]) => {
+        return new List(
+            lists.reduce((ls, x) => ls.concat(x.contents), <Mal[]> [])
+        )
     }
 }
 
