@@ -1,5 +1,6 @@
-import { Mal, Number, Nil, List, True, False, Vector, String, Atom, TCOFunction } from "./types"
+import { Mal, Symbol, Number, Nil, List, True, False, Vector, String, Atom, TCOFunction } from "./types"
 import { read_str } from "./reader";
+import { Env } from "./env"
 
 const fs = require('fs');
 
@@ -127,6 +128,15 @@ export const ns : {[key: string] : any} = {
         return new List(
             lists.reduce((ls, x) => ls.concat(x.contents), <Mal[]> [])
         )
+    },
+    "nth": (list: Mal, pos: Number) => {
+        let x = pos.contents
+        if (list.contents[x]) return list.contents[x]
+        throw "out of bounds"
+    },
+    "first": (list: Mal) => {
+        if (list instanceof Nil || list.contents.length == 0) return list
+        return list.contents[0]
     }
 }
 

@@ -48,6 +48,7 @@ export class TCOFunction extends Mal {
     ast: Mal
     params: string[]
     env: Env
+    public isMacro: boolean
 
     constructor(f: Function, ast: Mal, params: string[], env: Env) {
         super(Node.Function)
@@ -55,6 +56,7 @@ export class TCOFunction extends Mal {
         this.ast = ast
         this.params = params
         this.env = env
+        this.isMacro = false
     }
 
     public toString(print_readably: boolean): string {
