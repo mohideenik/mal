@@ -1,6 +1,5 @@
 import { Mal, Symbol, Number, Nil, List, True, False, Vector, String, Atom, TCOFunction } from "./types"
 import { read_str } from "./reader";
-import { Env } from "./env"
 
 const fs = require('fs');
 
