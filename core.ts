@@ -135,8 +135,12 @@ export const ns : {[key: string] : any} = {
         throw "out of bounds"
     },
     "first": (list: Mal) => {
-        if (list instanceof Nil || list.contents.length == 0) return list
+        if (list instanceof Nil || list.contents.length == 0) return new Nil()
         return list.contents[0]
+    },
+    "rest": (list: Mal) => {
+        if (list instanceof Nil) return new List([])
+        return new List(list.contents.slice(1))
     }
 }
 

@@ -55,11 +55,11 @@ function macroexpand(ast: Mal, env: Env) {
 }
 
 function evaluate(ast: Mal, repl_env: Env): Mal {
-    ast = macroexpand(ast, repl_env)
-    if (!(ast instanceof List))
-        return eval_ast(ast, repl_env)
-
     while (true) {
+        ast = macroexpand(ast, repl_env)
+        if (!(ast instanceof List))
+            return eval_ast(ast, repl_env)
+
         if (ast instanceof List) {
             if (ast.contents.length == 0) {
                 return ast
@@ -147,9 +147,9 @@ function evaluate(ast: Mal, repl_env: Env): Mal {
                     return fn.contents.apply(null, args)
                 }
             }
-        } else if (ast instanceof Map) {
-            let result = evaluate(ast.contents, repl_env)
-            return new Map(ast.key, result)
+        //} else if (ast instanceof Map) {
+        //    let result = evaluate(ast.contents, repl_env)
+        //    return new Map(ast.key, result)
         } else {
             return eval_ast(ast, repl_env)
         }
@@ -213,6 +213,8 @@ function load(str: string): void {
 
 load("(def! not (fn* (a) (if a false true)))")
 load('(def! load-file (fn* (f) (eval (read-string (str "(do " (remove-comments (slurp f)) ")")))))')
+load("(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))")
+load("(defmacro! or (fn* (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) `(let* (or_FIXME ~(first xs)) (if or_FIXME or_FIXME (or ~@(rest xs))))))))")
 
 // Main loop
 process.stdout.write("user> ")
